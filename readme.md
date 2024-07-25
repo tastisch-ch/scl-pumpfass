@@ -1,10 +1,10 @@
-# Customer Files for XYZ
+# Customer Files for Schallberger AG
 
-Customer Files repo for abc.xyz
+Customer Files repo for pumpfass.ch
 
 ## Description
 
-This repo is beeing used to deliver custom functions and styles for the website and webshop of XYZ.
+This repo is beeing used to deliver custom functions and styles for the website of Schallberger AG - pumpfass.ch
 It also serves customizations for Snipcart.
 
 ## Help
