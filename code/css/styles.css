@@ -1,1 +1,10 @@
-/* Custom CSS for XYZ */
+/* Custom CSS for Schallberger */
+
+.btn-download-text:hover .download-arrow,
+.btn-download-icon:hover .download-arrow {
+    transform: translateY(0px)
+}
+
+.icon-social-media:hover svg {
+    transform: scale(1.15)
+}
