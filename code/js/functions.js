@@ -1,6 +1,6 @@
 // Place for some code bratan!
-console.log("Fucking Ready")
-    // on Weglot init
+
+// on Weglot init
 Weglot.on('initialized', () => {
     // get the current active language
     console.log("Weglot ready")
