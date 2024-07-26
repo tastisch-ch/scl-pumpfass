@@ -9,5 +9,6 @@
     transform: scale(1.15)
 }
 
-
-/*Test Darko*/
+.btn-more-text:hover .btn-more-icon {
+    margin-left: 0;
+}
