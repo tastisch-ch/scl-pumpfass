@@ -5,14 +5,14 @@ Weglot.on('initialized', () => {
     // get the current active language
     const currentLang = Weglot.getCurrentLang();
     // if the current active language link exists
-    if (document.querySelector('.language-switch-btn [lang=' + currentLang + ']')) {
+    if (document.querySelector('.wrapper-language-switch [lang=' + currentLang + ']')) {
         // click the link
         document.querySelector('.language-switch-btn [lang=' + currentLang + ']').click();
     }
-});
 
+});
 // for each of the .wg-element-wrapper language links
-document.querySelectorAll('.language-switch-btn [lang]').forEach((link) => {
+document.querySelectorAll('.wrapper-language-switch [lang]').forEach((link) => {
     // add a click event listener
     link.addEventListener('click', function(e) {
         // prevent default
