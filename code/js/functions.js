@@ -8,7 +8,7 @@ Weglot.on('initialized', () => {
     // if the current active language link exists
     if (document.querySelector('.wrapper-language-switch [lang=' + currentLang + ']')) {
         // click the link
-        document.querySelector('.language-switch-btn [lang=' + currentLang + ']').click();
+        document.querySelector('.wrapper-language-switch [lang=' + currentLang + ']').click();
     }
 
 });
