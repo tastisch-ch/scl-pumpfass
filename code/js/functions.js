@@ -3,6 +3,7 @@
 // on Weglot init
 Weglot.on('initialized', () => {
     // get the current active language
+    console.log("Weglot ready")
     const currentLang = Weglot.getCurrentLang();
     // if the current active language link exists
     if (document.querySelector('.wrapper-language-switch [lang=' + currentLang + ']')) {
