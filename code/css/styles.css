@@ -12,3 +12,7 @@
 .btn-more-text:hover .btn-more-icon {
     margin-left: 0;
 }
+
+#modelljahr .text-size-tiny:before {
+    content: "Modelljahr ";
+}

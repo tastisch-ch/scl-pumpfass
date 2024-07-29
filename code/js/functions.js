@@ -50,3 +50,43 @@ $('.language-switch-btn').on('click', function() {
     $('.language-switch-btn').removeClass('is-active-language');
     $(this).toggleClass('is-active-language');
 });
+
+/* Set Tausendertrennzeichen */
+$('div[class*="price"] p').each(function() {
+    var price = $(this).text();
+    price = parseFloat(price.replace(/,/g, '')).toFixed(2);
+    var priceWithCommas = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    $(this).text(priceWithCommas);
+});
+
+
+// Function to show the overlay
+function showRequestForm() {
+    $(".occasionen-contact-form").css("display", "flex");
+    $(".occasionen-contact-form").animate({ opacity: 1 }, 340);
+}
+
+// Function to hide the overlay
+function hideRequestForm() {
+    $(".occasionen-contact-form").animate({ opacity: 0 }, 340, function() {
+        $(this).css("display", "none");
+    });
+}
+
+// Bind the show function to click event on elements with special-function="open-form"
+$(".is-occasion-form-opener").on("click", function() {
+    showRequestForm();
+});
+
+// Bind the hide function to click event on .form-button-close
+$(".form-close-button").on("click", function() {
+    hideRequestForm();
+});
+
+var Marke = $('#marke').text();
+
+// Find the input field with data-name "Marke" and set its value to the content
+$('input[data-name="Marke"]').val(Marke);
+
+// Disable the input field
+$('input[data-name="Marke"]').prop('disabled', true);
