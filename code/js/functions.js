@@ -1,5 +1,43 @@
 // Place for some code bratan!
 
+
+// Translating Months
+const data = {
+    months: {
+        en: [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December',
+        ],
+        local: [],
+    },
+
+};
+const allDates = $('.is-date');
+
+const shortenDaysMonths = daymonth => daymonth.substring(0, 3);
+const convertToLocal = (daydate, whatToConvert) => {
+    whatToConvert.each(function() {
+        const theObject = $(this);
+        let text = theObject.text();
+
+        if (daydate === 'm' || daydate === 'month' || daydate === 'months') {
+            for (let i = 0; i < data.months.en.length; i++) {
+                text = text.replace(data.months.en[i], data.months.local[i])
+                text = text.replace(shortenDaysMonths(data.months.en[i]), shortenDaysMonths(data
+                    .months.local[i]))
+                theObject.text(text)
+            }
+        }
+    })
+};
+data.months.local = [
+    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+];
+
+convertToLocal('m', allDates);
+
+
 // on Weglot init
 Weglot.on('initialized', () => {
     // get the current active language
@@ -60,33 +98,49 @@ $('div[class*="price"] p').each(function() {
 });
 
 
-// Function to show the overlay
+// Function to show the occasion contact form
 function showRequestForm() {
     $(".occasionen-contact-form").css("display", "flex");
     $(".occasionen-contact-form").animate({ opacity: 1 }, 340);
 }
 
-// Function to hide the overlay
 function hideRequestForm() {
     $(".occasionen-contact-form").animate({ opacity: 0 }, 340, function() {
         $(this).css("display", "none");
     });
 }
-
-// Bind the show function to click event on elements with special-function="open-form"
 $(".is-occasion-form-opener").on("click", function() {
     showRequestForm();
 });
-
-// Bind the hide function to click event on .form-button-close
 $(".form-close-button").on("click", function() {
     hideRequestForm();
 });
 
+
+// Function to show the footer contact form
+function showContactForm() {
+    $("footer-contact-form-wrapper").css("display", "flex");
+    $(".footer-contact-form-wrapper").animate({ opacity: 1 }, 340);
+}
+
+function hideContactForm() {
+    $(".footer-contact-form-wrapper").animate({ opacity: 0 }, 340, function() {
+        $(this).css("display", "none");
+    });
+}
+$("#footer-open-contactform").on("click", function() {
+    showRequestForm();
+});
+$(".contactform-close-button").on("click", function() {
+    hideRequestForm();
+});
+
+// Prefill Occasions Contact Fields
+
 var Marke = $('#marke').text();
-
-// Find the input field with data-name "Marke" and set its value to the content
 $('input[data-name="Marke"]').val(Marke);
-
-// Disable the input field
 $('input[data-name="Marke"]').prop('disabled', true);
+
+var Typ = $('#model').text();
+$('input[data-name="Typ"]').val(Typ);
+$('input[data-name="Typ"]').prop('disabled', true);
