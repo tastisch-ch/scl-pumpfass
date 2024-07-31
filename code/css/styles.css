@@ -21,3 +21,20 @@
 .fact-price-wrapper .text-size-xlarge:before {
     content: "CHF "
 }
+
+
+/* Privacy Bee */
+
+.prx_wrapper {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5rem;
+}
+
+.prx_text,
+.prx_listWrapper,
+.prx_techWrapper {
+    max-width: 100%;
+}
