@@ -144,3 +144,31 @@ $('input[data-name="Marke"]').prop('disabled', true);
 var Typ = $('#model').text();
 $('input[data-name="Typ"]').val(Typ);
 $('input[data-name="Typ"]').prop('disabled', true);
+
+
+// Reorder Title Tags in Privacy Bee
+setTimeout(function() {
+    var widget = $('privacybee-widget');
+
+    if (widget.length) {
+        var h1Elements = widget.find('h1').toArray();
+        var h2Elements = widget.find('h2').toArray();
+        var h3Elements = widget.find('h3').toArray();
+        var h4Elements = widget.find('h4').toArray();
+
+        h1Elements.forEach(function(element) {
+            var newElement = $('<h2>' + $(element).html() + '</h2>');
+            newElement.addClass('heading-style-h3 text-color-primary');
+            $(element).replaceWith(newElement);
+        });
+
+        h2Elements.forEach(function(element) {
+            var newElement = $('<h3>' + $(element).html() + '</h3>');
+            newElement.addClass('heading-style-h3 text-color-primary');
+            $(element).replaceWith(newElement);
+
+        });
+
+
+    }
+}, 1000); // Delay of 1 second
