@@ -16,3 +16,8 @@
 #modelljahr .text-size-tiny:before {
     content: "Modelljahr ";
 }
+
+.occasion-overview-price>p:before,
+.fact-price-wrapper .text-size-xlarge:before {
+    content: "CHF "
+}
