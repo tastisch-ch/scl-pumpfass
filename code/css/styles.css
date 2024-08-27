@@ -38,3 +38,24 @@
 .prx_techWrapper {
     max-width: 100%;
 }
+
+
+/* Styling für Händlerliste */
+
+.dealer-filter-dummy * {
+    cursor: pointer;
+}
+
+.dealer-kanton-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dealer-kanton-wrapper::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 600px rgba(255, 255, 255, 1);
+    border-radius: 200px;
+}
+
+.dealer-kanton-wrapper::-webkit-scrollbar-thumb {
+    border-radius: 200px;
+    -webkit-box-shadow: inset 0 0 600px rgba(0, 36, 88, 0.50);
+}
