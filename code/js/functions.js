@@ -90,7 +90,7 @@ $('.language-switch-btn').on('click', function() {
 });
 
 /* Set Tausendertrennzeichen */
-$('div[class*="price"] p').each(function() {
+$('div[class*="price"] p, .is-price').each(function() {
     var price = $(this).text();
     price = parseFloat(price.replace(/,/g, '')).toFixed(2);
     var priceWithCommas = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
