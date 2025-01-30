@@ -118,7 +118,7 @@ $(".form-close-button").on("click", function() {
 
 // Function to show the footer contact form
 function showContactForm() {
-    $("footer-contact-form-wrapper").css("display", "flex");
+    $(".footer-contact-form-wrapper").css("display", "flex");
     $(".footer-contact-form-wrapper").animate({ opacity: 1 }, 340);
 }
 
