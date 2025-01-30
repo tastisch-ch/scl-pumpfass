@@ -128,10 +128,10 @@ function hideContactForm() {
     });
 }
 $("#footer-open-contactform").on("click", function() {
-    showRequestForm();
+    showContactForm();
 });
 $(".contactform-close-button").on("click", function() {
-    hideRequestForm();
+    hideContactForm();
 });
 
 // Prefill Occasions Contact Fields
