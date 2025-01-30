@@ -612,9 +612,6 @@ function clearInputs(inputs) {
     });
 }
 
-document.getElementById('page-reload').addEventListener('click', function() {
-    location.reload();
-});
 
 
 
