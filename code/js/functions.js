@@ -307,7 +307,7 @@ $('input[type=radio][name=ssvsteuerung]').on('change', function() {
         $('#ssv-steuerungsoptionen').closest('.konfigurator_input-wrapper').hide();
     } else {
         // if a match was found, ensure the konfigurator_input-wrapper that contains #ssv-steuerungsoptionen is visible
-        $('#ssv-steuerungsoptionen').closest('.konfigurator_input-wrapper').show();
+        $('#ssv-steuerungsoptionen').closest('.konfigurator_input-wrapper').css('display', 'flex');
     }
      // Scroll to the top of the Konfigurator"
      $('html, body').animate({
