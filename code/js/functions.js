@@ -205,7 +205,13 @@ $('input[type=radio][name=Pumpenart]').on('change', function() {
             $this.show();
         }
     });
+
+    // Scroll to the top of the Konfigurator"
+    $('html, body').animate({
+        scrollTop: $('#konfigurator').offset().top
+    }, 500); // 500 milliseconds for the animation duration
 });
+
 
 // Filter Fassgrössen
 
