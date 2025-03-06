@@ -17,6 +17,10 @@
     content: "Modelljahr ";
 }
 
+.w-nav-overlay {
+    background-color: black;
+}
+
 /* Privacy Bee */
 
 .prx_wrapper {
