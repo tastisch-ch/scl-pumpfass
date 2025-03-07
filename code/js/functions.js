@@ -699,6 +699,12 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
         // Add Mwst to params.data
         params.data.Mwst = getMwstValue();
 
+        // Get current language using Weglot
+        var language = Weglot.getCurrentLang();
+
+        // Add Language to params.data
+        params.data.Language = language;
+
         // Get the total value
         var total = $('#konfigurator_total').text(); // Get the text
         total = total.replace(/CHF\s*/, ''); // Remove the "CHF" prefix and any following whitespace
