@@ -668,8 +668,36 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
             return artNrValues;
         }
 
+        // Function to get "waehrung" value
+        function getWaehrungValue() {
+            var waehrung;
+            if($('input[name="waehrung"]').is(':checked')) {
+                waehrung = 'CHF';
+            } else {
+                waehrung = 'EUR';
+            }
+            return waehrung;
+        }
+
+        // Function to get "mwst" value
+        function getMwstValue() {
+            var mwst;
+            if($('input[name="mwst"]').is(':checked')) {
+                mwst = 'inkl';
+            } else {
+                mwst = 'exkl';
+            }
+            return mwst;
+        }
+
         // Add Artikelnummern to params.data
         params.data.Artikelnummern = getArtNrValues();
+
+        // Add Waehrung to params.data
+        params.data.Waehrung = getWaehrungValue();
+
+        // Add Mwst to params.data
+        params.data.Mwst = getMwstValue();
 
         // Get the total value
         var total = $('#konfigurator_total').text(); // Get the text
