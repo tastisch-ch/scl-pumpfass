@@ -189,8 +189,8 @@ function initMap() {
     };
   
     const map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 47.161, lng: 8.440 },
-        zoom: 14,
+        center: { lat: 46.890493957105264, lng: 8.387944227317798 },
+        zoom: 17,
         mapTypeControl: false,
         streetViewControl: false
       });
@@ -204,11 +204,12 @@ function initMap() {
       ]; // Static locations
       
       const icon = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
-        fillColor: "#024476",
+        path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+        fillColor: '#024476',
         fillOpacity: 1,
-        strokeWeight: 0
+        scale: 1,
+        strokeColor: '#024476',
+        strokeWeight: 2
       };
       
       locations.forEach(location => {
