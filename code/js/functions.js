@@ -317,6 +317,21 @@ $('input[type=radio][name=ssvsteuerung]').on('change', function() {
 });
 
 
+// Format prices
+
+$(document).ready(function() {
+    var locale = "de-CH";
+    var currency = "CHF"; // replace with your currency if different
+
+    if (!window.location.pathname.includes("konfigurator")) {
+        $('.is-price').each(function() {
+            var value = parseFloat($(this).text());
+            var formattedValue = new Intl.NumberFormat(locale, { style: 'currency', currency: currency }).format(value);
+            $(this).text(formattedValue);
+        });
+    }
+});
+
 
 
 // Beautify the Summarize of Checkbox Groups --> NEED TO BE FIXED
