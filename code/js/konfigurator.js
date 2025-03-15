@@ -295,7 +295,16 @@ function clearInputs(inputs) {
 }
 
 
+// Change text in grand total in Konfigurator
 
+$('input[name="mwst"]').change(function() {
+    let mwstCheck = $(this).is(':checked')
+    if (!mwstCheck) {
+        $('.summary-total-wrapper .heading-style-h3:first').text('Total exkl. MWST');
+    } else {
+        $('.summary-total-wrapper .heading-style-h3:first').text('Total inkl. MWST');
+    }
+});
 
 
 window.SuperformAPI = window.SuperformAPI || [];
