@@ -92,7 +92,7 @@ function calculatePrice() {
     let arrPrices = []
     let sum = 0
 
-    $('input[data-price]:checked').each(function() {
+    $('input[data-price]:checked').each(function () {
         arrPrices.push(parseFloat($(this).attr("data-price")))
     })
 
@@ -130,7 +130,7 @@ function writeSummary(input) {
     //wenn Checkbox dann zusmamenrechnen
     if ($(input).attr("type") == "checkbox") {
         let checkboxSum = 0
-        $('input[name="' + input_name + '"]:checked').each(function() {
+        $('input[name="' + input_name + '"]:checked').each(function () {
             checkboxSum += parseFloat($(this).attr("data-price"))
         })
         price = checkboxSum
@@ -168,8 +168,8 @@ function checkWaehrung(sum, eurToChf, mwstCheck) {
 
     if ((!isChf && isMwst) || (isChf && !isMwst && !eurToChf)) {
         sum = sum / 1.081
-    } 
-    else if (!isChf){
+    }
+    else if (!isChf) {
         console.log("ah nei ig bin vom land, ez muesch luege.")
         sum = sum / 1.081
     }
@@ -180,18 +180,18 @@ function checkWaehrung(sum, eurToChf, mwstCheck) {
     return sum
 }
 
-$('input[data-price]').change(function() {
+$('input[data-price]').change(function () {
     writeSummary(this)
     calculatePrice()
 })
 
-$('input[name="mwst"]').change(function() {
+$('input[name="mwst"]').change(function () {
     let mwstCheck = $(this).is(':checked')
     updateCurrency("CHF", mwstCheck)
     calculatePrice()
 })
 
-$('input[name="waehrung"]').change(function() {
+$('input[name="waehrung"]').change(function () {
     if (!$('input[name="waehrung"]').is(':checked')) {
         // if EUR
         $('input[name="mwst"]').parents('.konfiguration_price-option').css({
@@ -215,10 +215,10 @@ $('input[name="waehrung"]').change(function() {
 })
 
 /* Update Value for currency*/
-window.updateCurrency = function(currency, mwstCheck) {
+window.updateCurrency = function (currency, mwstCheck) {
     const isChf = $('input[name="waehrung"]').is(':checked');
     const locale = isChf ? 'de-CH' : 'de-DE';
-    const curr   = isChf ? 'CHF' : 'EUR';
+    const curr = isChf ? 'CHF' : 'EUR';
 
     // Total-Label anpassen
     const isMwst = $('input[name="mwst"]').is(':checked');
@@ -227,7 +227,7 @@ window.updateCurrency = function(currency, mwstCheck) {
     );
 
     // 1. .is-price direkt bei Radio-Buttons aktualisieren
-    $('input[data-price]').each(function() {
+    $('input[data-price]').each(function () {
         const $input = $(this);
         const price = parseFloat($input.attr('data-price')) || 0;
         const $priceEl = $input.siblings('.is-price');
@@ -239,7 +239,7 @@ window.updateCurrency = function(currency, mwstCheck) {
     });
 
     // 2. .is-price in der Summary aktualisieren
-    $('.summary_acc-value-wrapper').each(function() {
+    $('.summary_acc-value-wrapper').each(function () {
         const $wrapper = $(this);
         const $valueEl = $wrapper.find('[sf-react]');
         const $priceEl = $wrapper.find('.is-price');
@@ -258,11 +258,24 @@ window.updateCurrency = function(currency, mwstCheck) {
         }
 
         let total = 0;
-        $checked.each(function() {
+        $checked.each(function () {
             total += parseFloat($(this).attr('data-price')) || 0;
         });
 
         const converted = checkWaehrung(total, false);
+        $priceEl.text(
+            new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
+        );
+    });
+
+
+    // 3. .is-price innerhalb von .is-pricewrapper aktualisieren
+    $('.is-pricewrapper .is-price').each(function () {
+        const $priceEl = $(this);
+        const $input = $priceEl.closest('label').find('input[data-price]');
+        if (!$input.length) return;
+        const price = parseFloat($input.attr('data-price')) || 0;
+        const converted = checkWaehrung(price, false);
         $priceEl.text(
             new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
         );
@@ -288,7 +301,7 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
 })
 
 //clear Inputs on radio button change + verteilungsart change
-$('input[type="radio"]').change(function() {
+$('input[type="radio"]').change(function () {
     var changedInput = $(this)
     var step = $(this).closest('.konfigurator_step')
     var allInputs = step.find('input:checked')
@@ -299,8 +312,8 @@ $('input[type="radio"]').change(function() {
     clearInputs(slicedElements)
 })
 
-$('input[name="verteilungsart"]').change(function() {
-    $('input[name="verteilungsart"]:not(:checked)').each(function() {
+$('input[name="verteilungsart"]').change(function () {
+    $('input[name="verteilungsart"]:not(:checked)').each(function () {
         let inputs
         let data_value = $(this).attr("data-value")
         if (data_value == "Weitwurfdüse") {
@@ -316,7 +329,7 @@ $('input[name="verteilungsart"]').change(function() {
 })
 
 function clearInputs(inputs) {
-    inputs.each(function() {
+    inputs.each(function () {
         if (!$(this).is($('._1-col-input-wrapper.hide #verteilungsart'))) {
             $(this).prop('checked', false)
             $(this).parents('.is-active-inputactive').removeClass('is-active-inputactive')
@@ -330,7 +343,7 @@ function clearInputs(inputs) {
 
 
 // Change text in grand total in Konfigurator
-$('input[name="mwst"]').change(function() {
+$('input[name="mwst"]').change(function () {
     const isChf = $('input[name="waehrung"]').is(':checked');
     let mwstCheck = $(this).is(':checked');
     if (!mwstCheck || !isChf) {
@@ -345,14 +358,14 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
     const myForm = getForm("konfigurator");
 
     // Call the getArtNrValues function and add the result to formData
-    myForm.onFormSubmit(async(params) => {
+    myForm.onFormSubmit(async (params) => {
 
         // Get all selected inputs and return art-nr into an array
         function getArtNrValues() {
             var artNrValues = [];
 
             // Select active radio buttons
-            $('input[type=radio]:checked').each(function() {
+            $('input[type=radio]:checked').each(function () {
                 var artNr = $(this).attr('art-nr');
                 if (artNr) {
                     artNrValues.push(artNr);
@@ -360,7 +373,7 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
             });
 
             // Select active checkboxes
-            $('input[type=checkbox]:checked').each(function() {
+            $('input[type=checkbox]:checked').each(function () {
                 var artNr = $(this).attr('art-nr');
                 if (artNr) {
                     artNrValues.push(artNr);
@@ -368,7 +381,7 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
             });
 
             // Select active select elements
-            $('select').each(function() {
+            $('select').each(function () {
                 var artNr = $(this).find('option:selected').attr('art-nr');
                 if (artNr) {
                     artNrValues.push(artNr);
@@ -384,7 +397,7 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
         // Function to get "waehrung" value
         function getWaehrungValue() {
             var waehrung;
-            if($('input[name="waehrung"]').is(':checked')) {
+            if ($('input[name="waehrung"]').is(':checked')) {
                 waehrung = 'CHF';
             } else {
                 waehrung = 'EUR';
@@ -395,7 +408,7 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
         // Function to get "mwst" value
         function getMwstValue() {
             var mwst;
-            if($('input[name="mwst"]').is(':checked')) {
+            if ($('input[name="mwst"]').is(':checked')) {
                 mwst = 'inkl';
             } else {
                 mwst = 'exkl';
