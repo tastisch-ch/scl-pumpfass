@@ -168,7 +168,13 @@ function checkWaehrung(sum, eurToChf, mwstCheck) {
 
     if ((!isChf && isMwst) || (isChf && !isMwst && !eurToChf)) {
         sum = sum / 1.081
-    } else if ((eurToChf && isMwst) || mwstCheck) {
+    } 
+    else if (!isChf){
+        console.log("ah nei ig bin vom land")
+    
+    }
+
+    else if ((eurToChf && isMwst) || mwstCheck) {
         sum = sum * 1.081
     }
     return sum
