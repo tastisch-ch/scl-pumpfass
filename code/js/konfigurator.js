@@ -1,4 +1,3 @@
-
 /*
    ____             __ _                       _                __                  _   _                 
   / ___|___  _ __  / _(_) __ _ _   _ _ __ __ _| |_ ___  _ __   / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
@@ -87,224 +86,196 @@ function checkWaehrung(sum){
 }
 */
 
-/* calculate total price */
-function calculatePrice() {
-    let arrPrices = []
-    let sum = 0
+(() => {
+    const MWST_FACTOR = 1.081;
+    const CHF_TO_EUR  = 1.08;
 
-    $('input[data-price]:checked').each(function() {
-        arrPrices.push(parseFloat($(this).attr("data-price")))
-    })
+    // --- Gecachte Selektoren (einmalig beim Init) ---
+    let $mwstOption, $chfLabel, $eurLabel, $totalHeading, $konfTotal;
 
-    for (let price of arrPrices) {
-        sum += parseFloat(price)
+    // --- State (einmal pro Render-Zyklus lesen) ---
+    function getState() {
+        const isChf = $('input[name="waehrung"]').is(':checked');
+        return {
+            isChf,
+            includeMwst: isChf && $('input[name="mwst"]').is(':checked'),
+            currency:    isChf ? 'CHF' : 'EUR',
+            locale:      isChf ? 'de-CH' : 'de-DE'
+        };
     }
 
-    //Währung checken
-    sum = checkWaehrung(sum, false)
-
-    let currency, locale
-    if (!$('input[name="waehrung"]').is(':checked')) {
-        currency = "EUR"
-        locale = "de-DE"
-    } else {
-        currency = "CHF"
-        locale = "de-CH"
-    }
-    sum = new Intl.NumberFormat(locale, { style: 'currency', currency: currency }).format(sum);
-
-    $('#konfigurator_total').text(sum)
-}
-//Initial price calculation
-calculatePrice()
-
-/* write price in summary */
-function writeSummary(input) {
-    let input_name = $(input).attr("name")
-    let price = parseFloat($(input).attr("data-price"))
-    if ($(input).is(':hidden')) {
-        price = 0
-    }
-    let summaryElement = $('.summary_acc-value[sf-react="text($f.' + input_name + ')"')
-
-    //wenn Checkbox dann zusmamenrechnen
-    if ($(input).attr("type") == "checkbox") {
-        let checkboxSum = 0
-        $('input[name="' + input_name + '"]:checked').each(function() {
-            checkboxSum += parseFloat($(this).attr("data-price"))
-        })
-        price = checkboxSum
+    // --- Formatierung ---
+    function formatMoney(value, state) {
+        return new Intl.NumberFormat(state.locale, {
+            style: 'currency',
+            currency: state.currency
+        }).format(Number(value) || 0);
     }
 
-    price = checkWaehrung(price, false)
-
-    let currency, locale
-    if (!$('input[name="waehrung"]').is(':checked')) {
-        currency = "EUR"
-        locale = "de-DE"
-    } else {
-        currency = "CHF"
-        locale = "de-CH"
-    }
-    price = new Intl.NumberFormat(locale, { style: 'currency', currency: currency }).format(price);
-
-    $(summaryElement).siblings('.is-price').text(price)
-}
-
-/* Währung checken und umrechnen */
-function checkWaehrung(sum, eurToChf, mwstCheck) {
-    let isChf = $('input[name="waehrung"]').is(':checked')
-    let isMwst = $('input[name="mwst"]').is(':checked')
-
-    if (isChf) {
-        //if CHF
-        if (eurToChf) {
-            sum = sum / 1.08
-        }
-    } else if (!isChf) {
-        //if EUR
-        sum = sum * 1.08
-    }
-
-    if ((!isChf && isMwst) || (isChf && !isMwst && !eurToChf)) {
-        sum = sum / 1.081
-    } else if ((eurToChf && isMwst) || mwstCheck) {
-        sum = sum * 1.081
-    }
-    return sum
-}
-
-$('input[data-price]').change(function() {
-    writeSummary(this)
-    calculatePrice()
-})
-
-$('input[name="mwst"]').change(function() {
-    let mwstCheck = $(this).is(':checked')
-    updateCurrency("CHF", mwstCheck)
-    calculatePrice()
-})
-
-$('input[name="waehrung"]').change(function() {
-    if (!$('input[name="waehrung"]').is(':checked')) {
-        // if EUR
-        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
-            'opacity': '0',
-            'pointer-events': 'none'
-        })
-        $('#chf-label').css('opacity', '0.4')
-        $('#eur-label').css('opacity', '')
-        updateCurrency("EUR")
-    } else {
-        //if CHF
-        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
-            'opacity': '100',
-            'pointer-events': ''
-        })
-        $('#chf-label').css('opacity', '')
-        $('#eur-label').css('opacity', '0.4')
-        updateCurrency("CHF")
-    }
-    calculatePrice()
-})
-
-/* Update Value for currency*/
-function updateCurrency(currency, mwstCheck) {
-    let locale
-    if (currency == "EUR") {
-        locale = 'de-DE'
-    } else {
-        locale = 'de-CH'
-    }
-
-    $('.is-price').each(function() {
-        var valueText = $(this).text()
-        var priceValue = valueText.match(/[\d’.,]+/g).join('')
-
-        if (valueText.match("€")) {
-            var value = parseFloat(priceValue.replace('.', '').replace(',', '.'))
-            var eurToChf = true
+    // --- Preisumrechnung (Basis: CHF inkl. MWST) ---
+    function convertBasePrice(basePrice, state) {
+        let value = Number(basePrice) || 0;
+        if (state.isChf) {
+            if (!state.includeMwst) value /= MWST_FACTOR;
         } else {
-            var value = parseFloat(priceValue.replace('’', '').replace(',', '').replace('.', '.'))
-            var eurToChf = false
+            value = (value / MWST_FACTOR) * CHF_TO_EUR;
         }
-
-        value = checkWaehrung(value, eurToChf, mwstCheck)
-
-        this.textContent = new Intl.NumberFormat(locale, { style: 'currency', currency: currency }).format(value);
-    })
-}
-
-//initial update currency
-updateCurrency("CHF")
-
-//Summary open accordion based on step
-window.SuperformAPI = window.SuperformAPI || [];
-window.SuperformAPI.push(({ getForm, allForms }) => {
-    const myForm = getForm("konfigurator");
-    myForm.onStepChange((params) => {
-        let stepCount = params.stepCount + 1
-        let stepName = "step-" + stepCount
-        let summaryHeader = $('.summary_acc-header[tab-name="' + stepName + '"]')
-
-        if (summaryHeader.length > 0 && !summaryHeader.hasClass('is-active-accordion')) {
-            summaryHeader.trigger('click')
-        }
-    })
-})
-
-//clear Inputs on radio button change + verteilungsart change
-$('input[type="radio"]').change(function() {
-    var changedInput = $(this)
-    var step = $(this).closest('.konfigurator_step')
-    var allInputs = step.find('input:checked')
-
-    var startIndex = allInputs.index(changedInput) + 1;
-    var slicedElements = allInputs.slice(startIndex);
-
-    clearInputs(slicedElements)
-})
-
-$('input[name="verteilungsart"]').change(function() {
-    $('input[name="verteilungsart"]:not(:checked)').each(function() {
-        let inputs
-        let data_value = $(this).attr("data-value")
-        if (data_value == "Weitwurfdüse") {
-            inputs = $('[sf-step="step-4"] input:checked, [sf-step="step-5"] input:checked')
-        } else if (data_value == "Schleppschlauchverteilung") {
-            inputs = $('[sf-step="step-3"] input:checked, [sf-step="step-5"] input:checked')
-        } else if (data_value == "Flächenverteilung") {
-            inputs = $('[sf-step="step-3"] input:checked, [sf-step="step-4"] input:checked')
-        }
-
-        clearInputs(inputs)
-    })
-})
-
-function clearInputs(inputs) {
-    inputs.each(function() {
-        if (!$(this).is($('._1-col-input-wrapper.hide #verteilungsart'))) {
-            $(this).prop('checked', false)
-            $(this).parents('.is-active-inputactive').removeClass('is-active-inputactive')
-            $(this).prev('.w--redirected-checked').removeClass('w--redirected-checked')
-
-            writeSummary(this)
-            calculatePrice()
-        }
-    });
-}
-
-
-// Change text in grand total in Konfigurator
-
-$('input[name="mwst"]').change(function() {
-    let mwstCheck = $(this).is(':checked')
-    if (!mwstCheck) {
-        $('.summary-total-wrapper .heading-style-h3:first').text('Total exkl. MWST');
-    } else {
-        $('.summary-total-wrapper .heading-style-h3:first').text('Total inkl. MWST');
+        return value;
     }
-});
+
+    // --- UI-Sync ---
+    function syncCurrencyUi(state) {
+        const { isChf, includeMwst } = state;
+
+        if (isChf) {
+            $mwstOption.css({ opacity: '1', 'pointer-events': '' });
+            $chfLabel.css('opacity', '');
+            $eurLabel.css('opacity', '0.4');
+        } else {
+            $mwstOption.css({ opacity: '0', 'pointer-events': 'none' });
+            $chfLabel.css('opacity', '0.4');
+            $eurLabel.css('opacity', '');
+        }
+
+        $totalHeading.text(
+            isChf && includeMwst ? 'Total inkl. MWST' : 'Total exkl. MWST'
+        );
+    }
+
+    // --- Summe für eine Input-Gruppe ermitteln ---
+    function getSelectedBaseTotalByName(inputName) {
+        const $checked = $(`input[data-price][name="${inputName}"]:checked:visible`);
+        if (!$checked.length) return { hasSelection: false, total: 0 };
+
+        let total = 0;
+        $checked.each(function () {
+            total += Number($(this).attr('data-price')) || 0;
+        });
+        return { hasSelection: true, total };
+    }
+
+    // --- Einzelne Summary-Zeile aktualisieren ---
+    function updateSummaryForName(inputName, state) {
+        if (!inputName) return;
+        const $priceTarget = $(`.summary_acc-value[sf-react="text($f.${inputName})"]`).siblings('.is-price');
+        if (!$priceTarget.length) return;
+
+        const { hasSelection, total } = getSelectedBaseTotalByName(inputName);
+        $priceTarget.text(hasSelection ? formatMoney(convertBasePrice(total, state), state) : '');
+    }
+
+    // --- Alle Summary-Preise neu rendern ---
+    function refreshAllSummaryPrices(state) {
+        const names = [...new Set(
+            $('input[data-price][name]').map(function () {
+                return $(this).attr('name');
+            }).get().filter(Boolean)
+        )];
+        names.forEach(name => updateSummaryForName(name, state));
+    }
+
+    // --- Haupt-Render (ein einziger getState()-Aufruf pro Zyklus) ---
+    function renderAll() {
+        const state = getState();
+        syncCurrencyUi(state);
+        refreshAllSummaryPrices(state);
+
+        let baseSum = 0;
+        $('input[data-price]:checked:visible').each(function () {
+            baseSum += Number($(this).attr('data-price')) || 0;
+        });
+        $konfTotal.text(formatMoney(convertBasePrice(baseSum, state), state));
+    }
+
+    // --- Inputs leeren ---
+    function clearInputs(inputs) {
+        inputs.each(function () {
+            if (!$(this).is($('._1-col-input-wrapper.hide #verteilungsart'))) {
+                $(this).prop('checked', false)
+                    .parents('.is-active-inputactive').removeClass('is-active-inputactive');
+                $(this).prev('.w--redirected-checked').removeClass('w--redirected-checked');
+            }
+        });
+        renderAll();
+    }
+
+    // --- Debounce ---
+    function debounce(fn, ms) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), ms);
+        };
+    }
+
+    // =============================================
+    // Globale API (Kompatibilität)
+    // =============================================
+    window.calculatePrice = renderAll;
+    window.writeSummary   = (input) => updateSummaryForName($(input).attr('name'), getState());
+    window.updateCurrency = renderAll;
+    window.checkWaehrung  = (sum) => convertBasePrice(sum, getState());
+
+    // =============================================
+    // Event-Handler
+    // =============================================
+    const debouncedRender = debounce(renderAll, 30);
+
+    $(document).off('change.priceFix');
+    $(document).on(
+        'change.priceFix',
+        'input[data-price], input[name="waehrung"], input[name="mwst"]',
+        debouncedRender
+    );
+
+    // Radio-Button: nachfolgende Inputs im selben Step leeren
+    $(document).on('change.clearFix', 'input[type="radio"]', function () {
+        const $step      = $(this).closest('.konfigurator_step');
+        const $allInputs = $step.find('input:checked');
+        const startIndex = $allInputs.index($(this)) + 1;
+        clearInputs($allInputs.slice(startIndex));
+    });
+
+    // Verteilungsart: abhängige Steps leeren
+    $(document).on('change.verteilung', 'input[name="verteilungsart"]', function () {
+        $('input[name="verteilungsart"]:not(:checked)').each(function () {
+            const dataValue = $(this).attr('data-value');
+            let inputs;
+            if      (dataValue === 'Weitwurfdüse')              inputs = $('[sf-step="step-4"] input:checked, [sf-step="step-5"] input:checked');
+            else if (dataValue === 'Schleppschlauchverteilung') inputs = $('[sf-step="step-3"] input:checked, [sf-step="step-5"] input:checked');
+            else if (dataValue === 'Flächenverteilung')         inputs = $('[sf-step="step-3"] input:checked, [sf-step="step-4"] input:checked');
+            if (inputs) clearInputs(inputs);
+        });
+    });
+
+    // =============================================
+    // SuperformAPI – Accordion bei Step-Wechsel
+    // =============================================
+    window.SuperformAPI = window.SuperformAPI || [];
+    window.SuperformAPI.push(({ getForm }) => {
+        const myForm = getForm('konfigurator');
+
+        myForm.onStepChange((params) => {
+            const stepName       = `step-${params.stepCount + 1}`;
+            const $summaryHeader = $(`.summary_acc-header[tab-name="${stepName}"]`);
+            if ($summaryHeader.length && !$summaryHeader.hasClass('is-active-accordion')) {
+                $summaryHeader.trigger('click');
+            }
+        });
+    });
+
+    // =============================================
+    // Init
+    // =============================================
+    $mwstOption   = $('input[name="mwst"]').parents('.konfiguration_price-option');
+    $chfLabel     = $('#chf-label');
+    $eurLabel     = $('#eur-label');
+    $totalHeading = $('.summary-total-wrapper .heading-style-h3:first');
+    $konfTotal    = $('#konfigurator_total');
+
+    renderAll();
+    console.log('Pricing patch aktiv: CHF/EUR + MWST neu berechnet.');
+})();
 
 
 window.SuperformAPI = window.SuperformAPI || [];
