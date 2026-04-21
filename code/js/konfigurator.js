@@ -159,11 +159,11 @@ function checkWaehrung(sum, eurToChf, mwstCheck) {
     if (isChf) {
         //if CHF
         if (eurToChf) {
-            sum = sum / 1.1
+            sum = sum / 1.08
         }
     } else if (!isChf) {
         //if EUR
-        sum = sum * 1.1
+        sum = sum * 1.08
     }
 
     if ((!isChf && isMwst) || (isChf && !isMwst && !eurToChf)) {
