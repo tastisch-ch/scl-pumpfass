@@ -300,6 +300,8 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
     })
 })
 
+console.log("Parat well vom Land")
+
 //clear Inputs on radio button change + verteilungsart change
 $('input[type="radio"]').change(function () {
     var changedInput = $(this)
