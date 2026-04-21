@@ -215,31 +215,59 @@ $('input[name="waehrung"]').change(function() {
 })
 
 /* Update Value for currency*/
-function updateCurrency(currency, mwstCheck) {
-    let locale
-    if (currency == "EUR") {
-        locale = 'de-DE'
-    } else {
-        locale = 'de-CH'
-    }
+window.updateCurrency = function(currency, mwstCheck) {
+    const isChf = $('input[name="waehrung"]').is(':checked');
+    const locale = isChf ? 'de-CH' : 'de-DE';
+    const curr   = isChf ? 'CHF' : 'EUR';
 
-    $('.is-price').each(function() {
-        var valueText = $(this).text()
-        var priceValue = valueText.match(/[\d’.,]+/g).join('')
+    // Total-Label anpassen
+    const isMwst = $('input[name="mwst"]').is(':checked');
+    $('.summary-total-wrapper .heading-style-h3:first').text(
+        (isChf && isMwst) ? 'Total inkl. MWST' : 'Total exkl. MWST'
+    );
 
-        if (valueText.match("€")) {
-            var value = parseFloat(priceValue.replace('.', '').replace(',', '.'))
-            var eurToChf = true
-        } else {
-            var value = parseFloat(priceValue.replace('’', '').replace(',', '').replace('.', '.'))
-            var eurToChf = false
+    // 1. .is-price direkt bei Radio-Buttons aktualisieren
+    $('input[data-price]').each(function() {
+        const $input = $(this);
+        const price = parseFloat($input.attr('data-price')) || 0;
+        const $priceEl = $input.siblings('.is-price');
+        if (!$priceEl.length) return;
+        const converted = checkWaehrung(price, false);
+        $priceEl.text(
+            new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
+        );
+    });
+
+    // 2. .is-price in der Summary aktualisieren
+    $('.summary_acc-value-wrapper').each(function() {
+        const $wrapper = $(this);
+        const $valueEl = $wrapper.find('[sf-react]');
+        const $priceEl = $wrapper.find('.is-price');
+        if (!$valueEl.length || !$priceEl.length) return;
+
+        const sfReact = $valueEl.attr('sf-react') || '';
+        const match = sfReact.match(/\$f\.([a-zA-Z0-9_-]+)/);
+        if (!match) return;
+
+        const name = match[1];
+        const $checked = $('input[data-price][name="' + name + '"]:checked');
+
+        if (!$checked.length) {
+            $priceEl.text('');
+            return;
         }
 
-        value = checkWaehrung(value, eurToChf, mwstCheck)
+        let total = 0;
+        $checked.each(function() {
+            total += parseFloat($(this).attr('data-price')) || 0;
+        });
 
-        this.textContent = new Intl.NumberFormat(locale, { style: 'currency', currency: currency }).format(value);
-    })
-}
+        const converted = checkWaehrung(total, false);
+        $priceEl.text(
+            new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
+        );
+    });
+};
 
 //initial update currency
 updateCurrency("CHF")
@@ -302,16 +330,15 @@ function clearInputs(inputs) {
 
 
 // Change text in grand total in Konfigurator
-
 $('input[name="mwst"]').change(function() {
-    let mwstCheck = $(this).is(':checked')
-    if (!mwstCheck) {
+    const isChf = $('input[name="waehrung"]').is(':checked');
+    let mwstCheck = $(this).is(':checked');
+    if (!mwstCheck || !isChf) {
         $('.summary-total-wrapper .heading-style-h3:first').text('Total exkl. MWST');
     } else {
         $('.summary-total-wrapper .heading-style-h3:first').text('Total inkl. MWST');
     }
 });
-
 
 window.SuperformAPI = window.SuperformAPI || [];
 window.SuperformAPI.push(({ getForm, allForms }) => {
