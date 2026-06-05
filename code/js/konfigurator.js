@@ -1,4 +1,3 @@
-
 /*
    ____             __ _                       _                __                  _   _                 
   / ___|___  _ __  / _(_) __ _ _   _ _ __ __ _| |_ ___  _ __   / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
@@ -7,85 +6,26 @@
   \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__\___/|_|    |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
                          |___/                                                                            
 */
-/*
-function calculatePrice(){
-    let arrPrices = []
-    let sum = 0
 
-    $('input[data-price]:checked').each(function(){
-        arrPrices.push(parseFloat($(this).attr("data-price")))
-    })
+/* Währung checken und umrechnen */
+/* Preise in data-price sind CHF inkl. 8.1% MWST */
+function checkWaehrung(sum) {
+    const isChf = $('input[name="waehrung"]').is(':checked');
+    const isMwst = $('input[name="mwst"]').is(':checked');
 
-    for(let price of arrPrices){
-        sum += parseFloat(price)
-    }
-    //Währung checken
-    sum = checkWaehrung(sum)
-
-    sumWithCommas = sum.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-
-    $('#konfigurator_total').text(sumWithCommas)
-}
-//Initial price calculation
-calculatePrice()
-
-function writeSummary(input){
-    let input_name = $(input).attr("name")
-    let price = parseFloat($(input).attr("data-price")).toFixed(2)
-    let summaryElement = $('.summary_acc-value[sf-react="text($f.' + input_name + ')"')
-
-    //wenn Checkbox dann zusmamenrechnen
-    if($(input).attr("type") == "checkbox"){
-        let checkboxSum = 0
-        $('input[name="' + input_name + '"]:checked').each(function(){
-            checkboxSum += parseFloat($(this).attr("data-price"))
-        })
-        price = checkboxSum.toFixed(2)
-    }
-
-    price = checkWaehrung(price)
-
-    var priceWithCommas = price.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-
-    $(summaryElement).siblings('.is-price').text(priceWithCommas)
-}
-
-
-$('input[data-price]').change(function(){
-    writeSummary(this)
-    calculatePrice()
-})
-
-$('input[name="waehrung"], input[name="mwst"]').change(function(){
-    calculatePrice()
-})
-
-// Währung checken und umrechnen
-function checkWaehrung(sum){
-    if(!$('input[name="waehrung"]').is(':checked')){
-        // if EUR
-        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
-            'opacity':'0',
-            'pointer-events':'none'
-        })
-        sum = sum / 1.081 * 1.1
-        $('.is-price').each(function(){
-            $(this).addClass('eur')
-        })
-    } else {
-        //if CHF
-        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
-            'opacity':'100',
-            'pointer-events':''
-        })
-        $('.is-price').removeClass('eur')
-        if (!$('input[name="mwst"]').is(':checked')){
-        sum = sum / 1.081
+    if (isChf) {
+        if (!isMwst) {
+            // CHF exkl. MWST
+            sum = sum / 1.081;
         }
+        // CHF inkl. MWST → unverändert
+    } else {
+        // EUR immer exkl. MWST
+        sum = sum / 1.081 / 1.08;
     }
-    return parseFloat(sum).toFixed(2)
+
+    return sum;
 }
-*/
 
 /* calculate total price */
 function calculatePrice() {
@@ -100,8 +40,7 @@ function calculatePrice() {
         sum += parseFloat(price)
     }
 
-    //Währung checken
-    sum = checkWaehrung(sum, false)
+    sum = checkWaehrung(sum)
 
     let currency, locale
     if (!$('input[name="waehrung"]').is(':checked')) {
@@ -115,7 +54,7 @@ function calculatePrice() {
 
     $('#konfigurator_total').text(sum)
 }
-//Initial price calculation
+// Initial price calculation
 calculatePrice()
 
 /* write price in summary */
@@ -127,7 +66,7 @@ function writeSummary(input) {
     }
     let summaryElement = $('.summary_acc-value[sf-react="text($f.' + input_name + ')"')
 
-    //wenn Checkbox dann zusmamenrechnen
+    // wenn Checkbox dann zusammenrechnen
     if ($(input).attr("type") == "checkbox") {
         let checkboxSum = 0
         $('input[name="' + input_name + '"]:checked').each(function () {
@@ -136,7 +75,7 @@ function writeSummary(input) {
         price = checkboxSum
     }
 
-    price = checkWaehrung(price, false)
+    price = checkWaehrung(price)
 
     let currency, locale
     if (!$('input[name="waehrung"]').is(':checked')) {
@@ -151,70 +90,7 @@ function writeSummary(input) {
     $(summaryElement).siblings('.is-price').text(price)
 }
 
-/* Währung checken und umrechnen */
-function checkWaehrung(sum, eurToChf, mwstCheck) {
-    let isChf = $('input[name="waehrung"]').is(':checked')
-    let isMwst = $('input[name="mwst"]').is(':checked')
-
-    if (isChf) {
-        //if CHF
-        if (eurToChf) {
-            sum = sum / 1.08
-        }
-    } else if (!isChf) {
-        //if EUR
-        sum = sum * 1.08
-    }
-
-    if ((!isChf && isMwst) || (isChf && !isMwst && !eurToChf)) {
-        sum = sum / 1.081
-    }
-    else if (!isChf) {
-        console.log("ah nei ig bin vom land, ez muesch luege.")
-        sum = sum / 1.081
-    }
-
-    else if ((eurToChf && isMwst) || mwstCheck) {
-        sum = sum * 1.081
-    }
-    return sum
-}
-
-$('input[data-price]').change(function () {
-    writeSummary(this)
-    calculatePrice()
-})
-
-$('input[name="mwst"]').change(function () {
-    let mwstCheck = $(this).is(':checked')
-    updateCurrency("CHF", mwstCheck)
-    calculatePrice()
-})
-
-$('input[name="waehrung"]').change(function () {
-    if (!$('input[name="waehrung"]').is(':checked')) {
-        // if EUR
-        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
-            'opacity': '0',
-            'pointer-events': 'none'
-        })
-        $('#chf-label').css('opacity', '0.4')
-        $('#eur-label').css('opacity', '')
-        updateCurrency("EUR")
-    } else {
-        //if CHF
-        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
-            'opacity': '100',
-            'pointer-events': ''
-        })
-        $('#chf-label').css('opacity', '')
-        $('#eur-label').css('opacity', '0.4')
-        updateCurrency("CHF")
-    }
-    calculatePrice()
-})
-
-/* Update Value for currency*/
+/* Update Value for currency */
 window.updateCurrency = function (currency, mwstCheck) {
     const isChf = $('input[name="waehrung"]').is(':checked');
     const locale = isChf ? 'de-CH' : 'de-DE';
@@ -232,7 +108,7 @@ window.updateCurrency = function (currency, mwstCheck) {
         const price = parseFloat($input.attr('data-price')) || 0;
         const $priceEl = $input.siblings('.is-price');
         if (!$priceEl.length) return;
-        const converted = checkWaehrung(price, false);
+        const converted = checkWaehrung(price);
         $priceEl.text(
             new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
         );
@@ -262,12 +138,11 @@ window.updateCurrency = function (currency, mwstCheck) {
             total += parseFloat($(this).attr('data-price')) || 0;
         });
 
-        const converted = checkWaehrung(total, false);
+        const converted = checkWaehrung(total);
         $priceEl.text(
             new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
         );
     });
-
 
     // 3. .is-price innerhalb von .is-pricewrapper aktualisieren
     $('.is-pricewrapper .is-price').each(function () {
@@ -275,17 +150,17 @@ window.updateCurrency = function (currency, mwstCheck) {
         const $input = $priceEl.closest('label').find('input[data-price]');
         if (!$input.length) return;
         const price = parseFloat($input.attr('data-price')) || 0;
-        const converted = checkWaehrung(price, false);
+        const converted = checkWaehrung(price);
         $priceEl.text(
             new Intl.NumberFormat(locale, { style: 'currency', currency: curr }).format(converted)
         );
     });
 };
 
-//initial update currency
+// Initial update currency
 updateCurrency("CHF")
 
-//Summary open accordion based on step
+// Summary open accordion based on step
 window.SuperformAPI = window.SuperformAPI || [];
 window.SuperformAPI.push(({ getForm, allForms }) => {
     const myForm = getForm("konfigurator");
@@ -302,7 +177,7 @@ window.SuperformAPI.push(({ getForm, allForms }) => {
 
 console.log("Parat well vom Land")
 
-//clear Inputs on radio button change + verteilungsart change
+// Clear Inputs on radio button change
 $('input[type="radio"]').change(function () {
     var changedInput = $(this)
     var step = $(this).closest('.konfigurator_step')
@@ -314,6 +189,7 @@ $('input[type="radio"]').change(function () {
     clearInputs(slicedElements)
 })
 
+// Clear Inputs on verteilungsart change
 $('input[name="verteilungsart"]').change(function () {
     $('input[name="verteilungsart"]:not(:checked)').each(function () {
         let inputs
@@ -343,8 +219,7 @@ function clearInputs(inputs) {
     });
 }
 
-
-// Change text in grand total in Konfigurator
+// Change text in grand total
 $('input[name="mwst"]').change(function () {
     const isChf = $('input[name="waehrung"]').is(':checked');
     let mwstCheck = $(this).is(':checked');
@@ -353,114 +228,94 @@ $('input[name="mwst"]').change(function () {
     } else {
         $('.summary-total-wrapper .heading-style-h3:first').text('Total inkl. MWST');
     }
-});
+    updateCurrency("CHF", mwstCheck)
+    calculatePrice()
+})
 
+$('input[name="waehrung"]').change(function () {
+    if (!$('input[name="waehrung"]').is(':checked')) {
+        // if EUR
+        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
+            'opacity': '0',
+            'pointer-events': 'none'
+        })
+        $('#chf-label').css('opacity', '0.4')
+        $('#eur-label').css('opacity', '')
+        updateCurrency("EUR")
+    } else {
+        // if CHF
+        $('input[name="mwst"]').parents('.konfiguration_price-option').css({
+            'opacity': '100',
+            'pointer-events': ''
+        })
+        $('#chf-label').css('opacity', '')
+        $('#eur-label').css('opacity', '0.4')
+        updateCurrency("CHF")
+    }
+    calculatePrice()
+})
+
+// Form submit
 window.SuperformAPI = window.SuperformAPI || [];
 window.SuperformAPI.push(({ getForm, allForms }) => {
     const myForm = getForm("konfigurator");
 
-    // Call the getArtNrValues function and add the result to formData
     myForm.onFormSubmit(async (params) => {
 
-        // Get all selected inputs and return art-nr into an array
         function getArtNrValues() {
             var artNrValues = [];
 
-            // Select active radio buttons
             $('input[type=radio]:checked').each(function () {
                 var artNr = $(this).attr('art-nr');
-                if (artNr) {
-                    artNrValues.push(artNr);
-                }
+                if (artNr) artNrValues.push(artNr);
             });
 
-            // Select active checkboxes
             $('input[type=checkbox]:checked').each(function () {
                 var artNr = $(this).attr('art-nr');
-                if (artNr) {
-                    artNrValues.push(artNr);
-                }
+                if (artNr) artNrValues.push(artNr);
             });
 
-            // Select active select elements
             $('select').each(function () {
                 var artNr = $(this).find('option:selected').attr('art-nr');
-                if (artNr) {
-                    artNrValues.push(artNr);
-                }
+                if (artNr) artNrValues.push(artNr);
             });
 
-            // Log the array to the console
             console.log(artNrValues);
-
             return artNrValues;
         }
 
-        // Function to get "waehrung" value
         function getWaehrungValue() {
-            var waehrung;
-            if ($('input[name="waehrung"]').is(':checked')) {
-                waehrung = 'CHF';
-            } else {
-                waehrung = 'EUR';
-            }
-            return waehrung;
+            return $('input[name="waehrung"]').is(':checked') ? 'CHF' : 'EUR';
         }
 
-        // Function to get "mwst" value
         function getMwstValue() {
-            var mwst;
-            if ($('input[name="mwst"]').is(':checked')) {
-                mwst = 'inkl';
-            } else {
-                mwst = 'exkl';
-            }
-            return mwst;
+            return $('input[name="mwst"]').is(':checked') ? 'inkl' : 'exkl';
         }
 
-        // Add Artikelnummern to params.data
         params.data.Artikelnummern = getArtNrValues();
-
-        // Add Waehrung to params.data
         params.data.Waehrung = getWaehrungValue();
-
-        // Add Mwst to params.data
         params.data.Mwst = getMwstValue();
+        params.data.Language = Weglot.getCurrentLang();
 
-        // Get current language using Weglot
-        var language = Weglot.getCurrentLang();
-
-        // Add Language to params.data
-        params.data.Language = language;
-
-        // Get the total value
-        var total = $('#konfigurator_total').text(); // Get the text
-        total = total.replace(/CHF\s*/, ''); // Remove the "CHF" prefix and any following whitespace
-
-        // Add total to params.data
+        var total = $('#konfigurator_total').text();
+        total = total.replace(/CHF\s*/, '');
         params.data.Total = total;
 
         console.log("form data:")
-        console.log(params.data); // Returns form data
+        console.log(params.data);
 
-        // Sending data to the webhook
         const webhookUrl = "https://hook.eu1.make.com/mwy1d2pu5pv1n6ocpth13xsgmhsj1gtk";
         console.log("trigger webhook")
         const response = await fetch(webhookUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(params.data)
         });
 
-        // Waiting for a reply from the webhook
         const reply = await response.json();
         console.log(reply);
 
-        // Check if the response was successful
         if (response.status === 200) {
-            // Find the element with the class .w-form-done and set its display to flex
             const element = document.querySelector('.konfigurator_success-message');
             if (element) {
                 element.style.display = 'flex';
