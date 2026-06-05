@@ -12,7 +12,7 @@ function calculatePrice() {
     let arrPrices = []
     let sum = 0
 
-    $('input[data-price]:checked').each(function () {
+    $('input[data-price]:checked').not('[name="verteilungsart"]').each(function () {
         arrPrices.push(parseFloat($(this).attr("data-price")))
     })
 
