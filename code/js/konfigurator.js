@@ -72,10 +72,10 @@ function writeSummary(input) {
 }
 
 /* Währung checken und umrechnen */
-/* Basis: data-price = CHF inkl. 8.1% MWST | Fixkurs: 1 EUR = 1.08 CHF */
+/* Basis: data-price = CHF inkl. 8.1% MWST | Fixkurs: 1 EUR = 1.10 CHF */
 function checkWaehrung(sum, eurToChf, mwstCheck) {
     const MWST_FACTOR = 1.081;
-    const CHF_PER_EUR = 1.08;
+    const CHF_PER_EUR = 1.10;
 
     let value = Number(sum);
     if (!Number.isFinite(value)) {
