@@ -93,7 +93,7 @@ function checkWaehrung(sum, eurToChf, mwstCheck) {
         // CHF inkl. MWST → unverändert
     } else {
         // EUR immer exkl. MWST
-        value = value / MWST_FACTOR / CHF_PER_EUR;
+        value = value / MWST_FACTOR * CHF_PER_EUR;
     }
 
     return value;
